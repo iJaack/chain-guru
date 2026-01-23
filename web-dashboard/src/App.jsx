@@ -191,7 +191,7 @@ function App() {
                 </tr>
               </thead>
               <tbody>
-                {sortedChains.slice(0, 100).map(c => (
+                {sortedChains.map(c => (
                   <tr key={c.chain_id}>
                     <td>{c.chain_name}</td>
                     <td><span className={`badge ${c.type}`}>{c.type}</span></td>
@@ -202,7 +202,7 @@ function App() {
               </tbody>
             </table>
           </div>
-          <div className="table-footer">Showing top 100 of {chains.length} chains</div>
+          <div className="table-footer">Showing all {chains.length} chains</div>
         </section>
       </main>
     </div>

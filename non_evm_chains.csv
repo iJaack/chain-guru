@@ -1,0 +1,160 @@
+Chain Name,Chain ID,Main RPC Option,Type
+Near Protocol,near-mainnet,https://rpc.mainnet.near.org,near
+Aptos Mainnet,aptos-mainnet,https://fullnode.mainnet.aptoslabs.com/v1,aptos
+Sui Mainnet,sui-mainnet,https://fullnode.mainnet.sui.io:443,sui
+Algorand Mainnet,algorand-mainnet,https://mainnet-api.algonode.cloud,algorand
+Agoric,agoric-3,https://agoric-rpc.stakeangle.com/,cosmos
+AIOZ Network,aioz_168-1,https://rpc-dataseed.aioz.network/,cosmos
+Akash,akashnet-2,https://akash-mainnet-rpc.cosmonautstakes.com/,cosmos
+Allora,allora-mainnet-1,https://allora-rpc.mainnet.allora.network/,cosmos
+Althea,althea_258432-1,https://althea.rpc.m.stavr.tech/,cosmos
+Andromeda,andromeda-1,https://andromeda.rpc.liveraven.net/,cosmos
+Archway,archway-1,https://rpc-archway.mzonder.com/,cosmos
+Arkeo,arkeo-main-v1,https://rpc-seed.arkeo.network/,cosmos
+Arkhadian,arkh,http://arkh.rpc.wellnode.net:26657/,cosmos
+AssetMantle,mantle-1,https://assetmantle-rpc.stakerhouse.com/,cosmos
+AtomOne,atomone-1,https://rpc.atomone.indonode.net/,cosmos
+Aura Network,aura_6322-2,https://mainnet-aura-rpc.konsortech.xyz/,cosmos
+Axelar,axelar-dojo-1,https://rpc-1.axelar.nodes.guru/,cosmos
+Axone,axone-1,https://axone-mainnet-rpc.shazoes.xyz/,cosmos
+Babylon Genesis,bbn-1,https://babylon-rpc.polkachu.com/,cosmos
+Band Protocol,laozi-mainnet,http://rpc.laozi1.bandchain.org/,cosmos
+BeeZee,beezee-1,https://rpc.getbze.com/,cosmos
+BitBadges,bitbadges-1,https://rpc.bitbadges.io/,cosmos
+BitCanna,bitcanna-1,https://rpc.bitcanna.io/,cosmos
+BitSong,bitsong-2b,https://rpc.bitsong.quokkastake.io/,cosmos
+Bitway,bitway-1,https://bitway-mainnet-rpc.itrocket.net/,cosmos
+Bluzelle,bluzelle-9,https://a.client.sentry.net.bluzelle.com:26657/,cosmos
+Canto,canto_7700-1,https://canto.gravitychain.io:26657/,cosmos
+Carbon,carbon-1,https://tm-api.carbon.network/,cosmos
+Celestia,celestia,https://rpc.celestia.citizenweb3.com/,cosmos
+C4E,perun-1,https://rpc.c4e.mainnet.dteam.tech/,cosmos
+Cheqd,cheqd-mainnet-1,https://cheqd.srvs.vnodesv.net/rpc/,cosmos
+Chihuahua,chihuahua-1,https://chihuahua-rpc.polkachu.com/,cosmos
+Cifer,cifer-2,http://119.59.126.109:26657/,cosmos
+CNHO Stables,cnho_stables-1,https://rpc-cnho.onenov.xyz/,cosmos
+Comdex,comdex-1,https://comdex-rpc.polkachu.com/,cosmos
+Commercio.network,commercio-3,https://rpc-mainnet.commercio.network/,cosmos
+Picasso,centauri-1,https://composable.rpc.m.stavr.tech/,cosmos
+ConsciousDAO,cvn_2032-1,https://rpc.cvn.io/,cosmos
+Coreum,coreum-mainnet-1,https://public.stakewolle.com/cosmos/coreum/rpc/,cosmos
+Cosmos Hub,cosmoshub-4,https://cosmos-rpc.stakeandrelax.net/,cosmos
+Crescent,crescent-1,https://crescent-rpc.polkachu.com/,cosmos
+Cronos,cronosmainnet_25-1,https://rpc.cronos.org/,cosmos
+Cronos POS Chain,crypto-org-chain-mainnet-1,https://cryptocom-rpc.polkachu.com/,cosmos
+Decentr,mainnet-3,https://decentr.rpc.m.stavr.tech/,cosmos
+Desmos,desmos-mainnet,https://desmos-rpc.staketab.org/,cosmos
+dHealth,dhealth,https://rpc.dhealth.nodestake.org/,cosmos
+Dora Vota,vota-ash,https://m-dora.rpc.utsa.tech/,cosmos
+Dungeon Chain,dungeon-1,https://rpc.dungeon.chaintools.tech/,cosmos
+dYdX Protocol,dydx-mainnet-1,https://dydx-dao-rpc.polkachu.com/,cosmos
+Dymension Hub,dymension_1100-1,https://m-dymension.rpc.utsa.tech/,cosmos
+Dyson Protocol,dyson-mainnet-01,https://dys-tm.dysonprotocol.com/,cosmos
+Elys Network,elys-1,https://rpc.elys.node75.org/,cosmos
+EmpowerChain,empowerchain-1,https://empower-rpc.bluestake.net/,cosmos
+Epix,epix_1916-1,https://rpc-m.epix.vinjan-inc.com/,cosmos
+Evmos,evmos_9001-2,https://evmos-rpc.polkachu.com/,cosmos
+fandomChain,fandomChain,https://rpc.fandomchain.com/,cosmos
+Fetch.ai,fetchhub-4,https://rpc.fetchhub-4.fetch.aviaone.com/,cosmos
+FIRMACHAIN,colosseum-1,https://firma.rpc.m.stavr.tech/,cosmos
+Pundi AIFX,fxcore,https://functionx.rpc.nodeshub.online/,cosmos
+Wormhole Gateway,wormchain,https://wormchain-mainnet-1-full.tm.p2p.org/,cosmos
+GenesisL1,genesis_29-2,https://26657.genesisl1.org/,cosmos
+Gitopia,gitopia,https://gitopia-rpc.stakeangle.com/,cosmos
+Gonka,gonka-mainnet,https://node2.gonka.ai:8443/chain-rpc/,cosmos
+Gravity Bridge,gravity-bridge-3,https://gravity-rpc.polkachu.com/,cosmos
+Haqq Network,haqq_11235-1,https://rpc.haqq.nodestake.org/,cosmos
+Hippo Protocol,hippo-protocol-1,https://hippo-mainnet-rpc.shazoes.xyz/,cosmos
+Humans.ai,humans_1089-1,http://65.21.46.90:5657/,cosmos
+Impact Hub,ixo-5,https://impacthub.ixo.world/rpc/,cosmos
+Initia,interwoven-1,https://rpc.initia.xyz/,cosmos
+Injective,injective-1,https://injective-rpc.polkachu.com/,cosmos
+Int3face,int3face-1,https://rpc.mainnet.int3face.zone/,cosmos
+Intento,intento-1,https://rpc-mainnet.intento.zone/,cosmos
+IRISnet,irishub-1,https://mainnet-iris-rpc.konsortech.xyz/,cosmos
+Jackal,jackal-1,https://m-jackal.rpc.utsa.tech/,cosmos
+Juno,juno-1,https://juno-rpc.stakeandrelax.net/,cosmos
+Kava,kava_2222-10,https://rpc.kava.nodestake.org/,cosmos
+Ki,kichain-2,https://kichain-rpc.polkachu.com/,cosmos
+KiiChain,kiichain_1783-1,https://rpc.kiivalidator.com/,cosmos
+Kopi,luwak-1,https://kopi-rpc.polkachu.com/,cosmos
+Kujira,kaiyo-1,https://kujira-rpc.polkachu.com/,cosmos
+KYVE,kyve-1,https://kyve.rpc.liveraven.net/,cosmos
+Lava,lava-mainnet-1,https://rpc-lava.vinjan-inc.com/,cosmos
+LikeCoin,likecoin-mainnet-2,https://mainnet-node.like.co/rpc/,cosmos
+Loop,loop-1,https://rpc.loop.pfc.zone/,cosmos
+Loyal,loyal-main-02,https://loyal-rpc.polkachu.com/,cosmos
+Lumera,lumera-mainnet-1,https://lumera-rpc.linknode.org/,cosmos
+Lum Network,lum-network-1,https://lum-rpc.stakerhouse.com/,cosmos
+Manifest,manifest-ledger-mainnet,https://nodes.liftedinit.app/manifest/rpc/,cosmos
+MANTRA,mantra-1,https://mantra-mainnet-rpc.itrocket.net/,cosmos
+Maya Protocol,mayachain-mainnet-v1,https://tendermint.mayachain.info/,cosmos
+Medas Digital Network,medasdigital-2,https://rpc.medas-digital.io:26657/,cosmos
+MEME,meme-1,https://meme-rpc.polkachu.com/,cosmos
+MilkyWay,milkyway,https://rpc.mainnet.milkyway.zone/,cosmos
+Mirage,mirage-1,https://mirage.talk/chain/rpc/,cosmos
+mtgbp,mtgbp-1,https://rpc.mtgbp.com/,cosmos
+Neutaro,Neutaro-1,https://rpc3.neutaro.io/,cosmos
+Neutron,neutron-1,https://rpc.neutron.quokkastake.io/,cosmos
+Nibiru,cataclysm-1,https://nibiru.rpc.liveraven.net/,cosmos
+Nillion,nillion-1,https://rpc.nillion.nodestake.org/,cosmos
+Noble,noble-1,https://noble-rpc.owallet.io/,cosmos
+Nolus,pirin-1,https://nolus.rpc.liveraven.net/,cosmos
+Nomic,nomic-stakenet-3,https://nomic-rpc.polkachu.com/,cosmos
+Nym,nyx,https://rpc.nymtech.net/,cosmos
+OKExChain,exchain-66,https://exchaintmrpc.okex.org/,cosmos
+OmniFlix,omniflixhub-1,https://omniflix-rpc.dakshavalidator.in/,cosmos
+Optio,optio,https://rpc.optio.zone/,cosmos
+Oraichain,Oraichain,https://rpc.orai.pfc.zone/,cosmos
+Osmosis,osmosis-1,https://rpc.osmosis.citizenweb3.com/,cosmos
+Paloma,tumbler,https://rpc-1.paloma.nodes.guru/,cosmos
+Medibloc,panacea-3,https://rpc.gopanacea.org/,cosmos
+Passage,passage-2,https://passage-rpc.polkachu.com/,cosmos
+Paxi,paxi-mainnet,https://rpc.paxi.indonode.net/,cosmos
+Persistence,core-1,https://public.stakewolle.com/cosmos/persistence/rpc/,cosmos
+Planq,planq_7070-2,https://rpc.planq.nodestake.org/,cosmos
+Pocket Network,pocket,https://shannon-grove-rpc.mainnet.poktroll.com/,cosmos
+Provenance,pio-mainnet-1,https://provenance-rpc.panthea.eu/,cosmos
+Pryzm,pryzm-1,https://rpc.pryzm.zone/,cosmos
+Pundi X Chain,PUNDIX,https://px-json.pundix.com/,cosmos
+Quantum Financial Systems,qfs-1,https://rpc.qfsone.com/,cosmos
+Qubetics,qubetics_9030-1,https://jblfg.org/,cosmos
+Quicksilver,quicksilver-2,http://quick.rpc.m.stavr.tech:21027/,cosmos
+Qwoyn,qwoyn-1,https://qwoyn.rpc.m.stavr.tech/,cosmos
+Realio Network,realionetwork_3301-1,https://realio-rpc.genznodes.dev/,cosmos
+Rebus,reb_1111-1,https://rebus.rpc.liveraven.net/,cosmos
+Regen,regen-1,https://rpc-regen.ecostake.com/,cosmos
+Saga,ssc-1,https://saga-rpc.stakeandrelax.net/,cosmos
+SEDA,seda-1,https://rpc.seda.tcnetwork.io/,cosmos
+Sentinel,sentinelhub-2,https://rpc-sentinel.chainvibes.com/,cosmos
+Shentu,shentu-2.2,https://shentu.api.pocket.network/,cosmos
+Shido,shido_9008-1,https://rpc.shidoscan.net/,cosmos
+Sifchain,sifchain-1,https://sifchain-rpc.polkachu.com/,cosmos
+SIX Protocol,sixnet,https://sixnet-rpc.sixprotocol.net/,cosmos
+Sommelier,sommelier-3,https://somm.rpc.m.stavr.tech/,cosmos
+Source,source-1,https://rpc.source.tcnetwork.io/,cosmos
+Stargaze,stargaze-1,https://stargaze-rpc.stakerhouse.com/,cosmos
+STO Chain,stoc,https://rpc-stoc-mainnet.stochainscan.io/,cosmos
+Stratos,stratos-1,https://rpc.stratos.nodestake.org/,cosmos
+Stride,stride-1,https://public.stakewolle.com/cosmos/stride/rpc/,cosmos
+Sunrise,sunrise-1,https://rpc-sunrise.veriznode.xyz/,cosmos
+Symphony,symphony-1,https://rpc-m.symphony.vinjan-inc.com/,cosmos
+Synternet,synternet-1,https://rpc.synternet.com/,cosmos
+TakeTitan,taketitan-1,https://rpc.taketitan.com/,cosmos
+Teritori,teritori-1,https://teritori-rpc.polkachu.com/,cosmos
+Terp-Network,morocco-1,https://terp-mainnet-rpc.itrocket.net/,cosmos
+Terra Classic,columbus-5,https://terraclassic-rpc-server-01.stakely.io/,cosmos
+Terra,phoenix-1,https://terra2.tdrsys.com:2053/,cosmos
+UX Chain,umee-1,https://rpc-umee.mzonder.com/,cosmos
+Unification,FUND-MainNet-2,https://rpc.unification.io/,cosmos
+Union,union-1,https://union-rpc.polkachu.com/,cosmos
+UnUniFi,ununifi-beta-v1,http://a.lcd.ununifi.cauchye.net:26657/,cosmos
+Uptick,uptick_117-1,https://m-uptick.rpc.utsa.tech/,cosmos
+Warden,warden_8765-1,https://rpc.wardenprotocol.org/,cosmos
+XarChain Coral,xarchain,https://cosmos01-testnet.arcana.network:26650/,cosmos
+Xion,xion-mainnet-1,https://xion-rpc.polkachu.com/,cosmos
+XPLA,dimension_37-1,https://dimension-rpc.xpla.dev/,cosmos
+XRPL EVM,xrplevm_1440000-1,https://rpc.xrpl.cumulo.org.es/,cosmos
+Zenrock Mainnet,diamond-1,https://rpc.diamond.zenrocklabs.io/,cosmos
+ZetaChain,zetachain_7000-1,https://zetachain.blockpi.network/rpc/v1/public/,cosmos
+ZIGChain,zigchain-1,https://public-zigchain-rpc.numia.xyz/,cosmos

@@ -75,14 +75,40 @@ h1 {
   backdrop-filter: blur(10px);
 }
 
-.glow-evm { border-top: 2px solid var(--accent-cyan); box-shadow: 0 -10px 40px -20px rgba(0, 243, 255, 0.2); }
-.glow-nonevm { border-top: 2px solid var(--accent-pink); box-shadow: 0 -10px 40px -20px rgba(188, 19, 254, 0.2); }
-.glow-total { border-top: 2px solid var(--text); }
+.glow-evm {
+  border-top: 2px solid var(--accent-cyan);
+  box-shadow: 0 -10px 40px -20px rgba(0, 243, 255, 0.2);
+}
 
-h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+.glow-nonevm {
+  border-top: 2px solid var(--accent-pink);
+  box-shadow: 0 -10px 40px -20px rgba(188, 19, 254, 0.2);
+}
 
-.big-num { font-size: 2rem; font-weight: 700; color: var(--text); }
-.mega-num { font-size: 3rem; font-weight: 800; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
+.glow-total {
+  border-top: 2px solid var(--text);
+}
+
+h3 {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.big-num {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.mega-num {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
 
 .sub-stats {
   margin-top: 15px;
@@ -93,19 +119,39 @@ h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: var(--text-dim); text-transfo
 .bar-container {
   display: flex;
   height: 6px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
   margin: 15px 0;
   overflow: hidden;
 }
 
-.bar-fill { height: 100%; transition: width 0.5s ease; }
-.bar-fill.evm { background: var(--accent-cyan); }
-.bar-fill.nonevm { background: var(--accent-pink); }
+.bar-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+}
 
-.legend { font-size: 0.8rem; text-align: center; }
-.evm-text { color: var(--accent-cyan); font-weight: bold; }
-.nonevm-text { color: var(--accent-pink); font-weight: bold; }
+.bar-fill.evm {
+  background: var(--accent-cyan);
+}
+
+.bar-fill.nonevm {
+  background: var(--accent-pink);
+}
+
+.legend {
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.evm-text {
+  color: var(--accent-cyan);
+  font-weight: bold;
+}
+
+.nonevm-text {
+  color: var(--accent-pink);
+  font-weight: bold;
+}
 
 /* CONTROLS */
 .controls-section {
@@ -115,7 +161,10 @@ h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: var(--text-dim); text-transfo
   margin-bottom: 40px;
 }
 
-.control-group h4 { margin: 0 0 15px 0; color: var(--text-dim); }
+.control-group h4 {
+  margin: 0 0 15px 0;
+  color: var(--text-dim);
+}
 
 .input-row {
   margin-bottom: 10px;
@@ -124,10 +173,12 @@ h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: var(--text-dim); text-transfo
   align-items: center;
 }
 
-.input-row label { font-size: 0.85rem; }
+.input-row label {
+  font-size: 0.85rem;
+}
 
 input {
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.3);
   border: 1px solid var(--border);
   color: var(--text);
   padding: 5px 10px;
@@ -158,7 +209,7 @@ button {
 }
 
 button:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-color: var(--text-dim);
 }
 
@@ -183,7 +234,10 @@ button.active {
   margin-bottom: 20px;
 }
 
-.filters { display: flex; gap: 10px; }
+.filters {
+  display: flex;
+  gap: 10px;
+}
 
 .table-wrapper {
   overflow-x: auto;
@@ -203,15 +257,22 @@ th {
   cursor: pointer;
 }
 
-th:hover { color: var(--text); }
-th.right { text-align: right; }
+th:hover {
+  color: var(--text);
+}
+
+th.right {
+  text-align: right;
+}
 
 td {
   padding: 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-.right { text-align: right; }
+.right {
+  text-align: right;
+}
 
 .badge {
   padding: 2px 8px;
@@ -221,12 +282,45 @@ td {
   font-weight: bold;
 }
 
-.badge.EVM { background: rgba(0, 243, 255, 0.1); color: var(--accent-cyan); }
-.badge.Non-EVM { background: rgba(188, 19, 254, 0.1); color: var(--accent-pink); }
+.badge.EVM {
+  background: rgba(0, 243, 255, 0.1);
+  color: var(--accent-cyan);
+}
+
+.badge.Non-EVM {
+  background: rgba(188, 19, 254, 0.1);
+  color: var(--accent-pink);
+}
 
 .table-footer {
   margin-top: 15px;
   text-align: center;
   font-size: 0.8rem;
   color: var(--text-dim);
+}
+
+/* Status Badge */
+.status-badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.status-badge.live {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.status-badge.error {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
 }

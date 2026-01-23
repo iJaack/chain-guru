@@ -26,7 +26,9 @@ def init_db():
             tps_10min REAL,
             last_updated_at REAL,
             status TEXT,
-            error_message TEXT
+            error_message TEXT,
+            total_tx_count REAL,
+            health_status TEXT
         )
     ''')
     conn.commit()
@@ -263,10 +265,12 @@ def main():
         for future in as_completed(future_to_chain):
             chain_id, chain_name, rpc_url, tps, status, error = future.result()
             
+            health = "Live" if status == 'success' else error
+            
             cursor.execute('''
-                INSERT OR REPLACE INTO chain_metrics (chain_id, chain_name, rpc_url, tps_10min, last_updated_at, status, error_message)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            ''', (chain_id, chain_name, rpc_url, tps, time.time(), status, error))
+                INSERT OR REPLACE INTO chain_metrics (chain_id, chain_name, rpc_url, tps_10min, last_updated_at, status, error_message, health_status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (chain_id, chain_name, rpc_url, tps, time.time(), status, error, health))
             
             if completed % 10 == 0:
                 conn.commit()

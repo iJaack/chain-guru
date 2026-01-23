@@ -186,6 +186,7 @@ function App() {
                 <tr>
                   <th onClick={() => handleSort('chain_name')}>Name</th>
                   <th onClick={() => handleSort('type')}>Type</th>
+                  <th onClick={() => handleSort('health_status')}>Status</th>
                   <th onClick={() => handleSort('tps_10min')} className="right">TPS (Live)</th>
                   <th onClick={() => handleSort('total_tx_count')} className="right">History (Total Tx)</th>
                 </tr>
@@ -195,6 +196,7 @@ function App() {
                   <tr key={c.chain_id}>
                     <td>{c.chain_name}</td>
                     <td><span className={`badge ${c.type}`}>{c.type}</span></td>
+                    <td><span className={`status-badge ${c.health_status === 'Live' ? 'live' : 'error'}`}>{c.health_status || 'Unknown'}</span></td>
                     <td className="right">{c.tps_10min?.toFixed(2)}</td>
                     <td className="right">{fmtNum(c.total_tx_count)}</td>
                   </tr>

@@ -15,7 +15,7 @@ function App() {
   const [sort, setSort] = useState({ key: 'tps_10min', dir: 'desc' })
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/chains')
+    fetch('/api/chains')
       .then(res => res.json())
       .then(data => {
         setChains(data)

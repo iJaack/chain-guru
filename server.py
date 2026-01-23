@@ -44,11 +44,11 @@ def get_chains():
     
     if db_type == "postgres":
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        cursor.execute("SELECT * FROM chain_metrics WHERE status='success'")
+        cursor.execute("SELECT * FROM chain_metrics")
         rows = cursor.fetchall()
     else:
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM chain_metrics WHERE status='success'")
+        cursor.execute("SELECT * FROM chain_metrics")
         rows = cursor.fetchall()
         
     conn.close()
@@ -71,7 +71,7 @@ def get_summary():
     else:
         cursor = conn.cursor()
         
-    cursor.execute("SELECT chain_id, tps_10min, total_tx_count FROM chain_metrics WHERE status='success'")
+    cursor.execute("SELECT chain_id, tps_10min, total_tx_count FROM chain_metrics")
     rows = cursor.fetchall()
     conn.close()
     

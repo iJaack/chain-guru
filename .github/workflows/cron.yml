@@ -1,0 +1,35 @@
+name: Daily Data Refresh
+
+on:
+  schedule:
+    # Run at 00:00 UTC every day
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    # Allow manual triggering
+
+jobs:
+  refresh-metrics:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        # Ensure additional scripts' dependencies are covered if not in requirements.txt
+        # (Assuming process_chains.py, measure_tps.py etc use standard libs or are covered)
+        pip install requests aiohttp
+
+    - name: Run Data Refresh
+      env:
+        POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
+      run: |
+        python refresh_data.py

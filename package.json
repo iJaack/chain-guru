@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "cd web-dashboard && npm install && npm run build && cp -r dist/* ../"
+    "build": "cd web-dashboard && npm install && npm run build && cp -r dist/* ../static/"
   },
   "dependencies": {
     "vercel": "^50.4.10"

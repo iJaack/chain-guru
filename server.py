@@ -96,6 +96,10 @@ def get_summary():
             
     return metrics
 
+    return metrics
+
+
+
 from fastapi.staticfiles import StaticFiles
 # Mount static files (must be last to allow API routes to match first)
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

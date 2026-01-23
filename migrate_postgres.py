@@ -2,6 +2,9 @@ import sqlite3
 import psycopg2
 import os
 import sys
+from dotenv import load_dotenv
+
+load_dotenv(".env.local")
 
 # Usage: POSTGRES_URL=... python3 migrate_postgres.py
 

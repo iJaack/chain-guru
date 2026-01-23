@@ -12,14 +12,33 @@ function App() {
   })
 
   // Table State
-  const [filter, setFilter] = useState('all') // 'all', 'EVM', 'Non-EVM'
+  const [filter, setFilter] = useState('all') // 'all', 'Mainnet', 'Testnet' (Updated from EVM/Non-EVM based on focus, or add more?)
+  // Let's keep filters flexible: Type or Env? 
+  // User asked to "divide by environment"
+  const [envFilter, setEnvFilter] = useState('all') // 'all', 'Mainnet', 'Testnet'
   const [sort, setSort] = useState({ key: 'tps_10min', dir: 'desc' })
 
   useEffect(() => {
     fetch('/api/chains')
       .then(res => res.json())
       .then(data => {
-        setChains(data)
+        // Process Names and Environment
+        const processed = data.map(c => {
+          let env = 'Mainnet'
+          let name = c.chain_name
+
+          if (name.toLowerCase().includes('testnet')) {
+            env = 'Testnet'
+            name = name.replace(/testnet/gi, '').trim()
+          } else if (name.toLowerCase().includes('mainnet')) {
+            name = name.replace(/mainnet/gi, '').trim()
+          }
+          // Remove trailing hyphens or spaces if any
+          name = name.replace(/-$/, '').trim()
+
+          return { ...c, clean_name: name, environment: env }
+        })
+        setChains(processed)
         setLoading(false)
       })
       .catch(err => console.error("API Error:", err))
@@ -27,25 +46,38 @@ function App() {
 
   // Calculations
   const stats = useMemo(() => {
-    let evmTps = 0, evmHist = 0, evmCount = 0
-    let nonEvmTps = 0, nonEvmHist = 0, nonEvmCount = 0
+    let evmTps = 0, evmHist = 0
+    let nonEvmTps = 0, nonEvmHist = 0
+    let mainnetTps = 0, mainnetHist = 0
+    let testnetTps = 0, testnetHist = 0
+
+    let total = 0
 
     chains.forEach(c => {
       const tps = c.tps_10min || 0
       const hist = c.total_tx_count || 0
 
+      // Type Stats
       if (c.type === 'EVM') {
         evmTps += tps
         evmHist += hist
-        evmCount++
       } else {
         nonEvmTps += tps
         nonEvmHist += hist
-        nonEvmCount++
+      }
+
+      // Environment Stats
+      if (c.environment === 'Mainnet') {
+        mainnetTps += tps
+        mainnetHist += hist
+      } else {
+        testnetTps += tps
+        testnetHist += hist
       }
     })
 
-    // Revenue
+    // Revenue (Keep EVM based for now as per previous logic, or split by env? 
+    // Pricing model was EVM vs Non-EVM. I'll keep revenue based on Architecture Type as that's usually the cost driver).
     const evmArr = evmTps * pricing.evm.tps
     const evmSetup = (evmHist / 1000000) * pricing.evm.setup
     const evmTotal = evmArr + evmSetup
@@ -54,26 +86,35 @@ function App() {
     const nonEvmSetup = (nonEvmHist / 1000000) * pricing.nonEvm.setup
     const nonEvmTotal = nonEvmArr + nonEvmSetup
 
+    total = evmTotal + nonEvmTotal
+
     return {
-      evm: { tps: evmTps, hist: evmHist, count: evmCount, rev: evmTotal, arr: evmArr, setup: evmSetup },
-      nonEvm: { tps: nonEvmTps, hist: nonEvmHist, count: nonEvmCount, rev: nonEvmTotal, arr: nonEvmArr, setup: nonEvmSetup },
-      total: evmTotal + nonEvmTotal
+      evm: { tps: evmTps, hist: evmHist, rev: evmTotal, arr: evmArr, setup: evmSetup },
+      nonEvm: { tps: nonEvmTps, hist: nonEvmHist, rev: nonEvmTotal, arr: nonEvmArr, setup: nonEvmSetup },
+      mainnet: { tps: mainnetTps, hist: mainnetHist },
+      testnet: { tps: testnetTps, hist: testnetHist },
+      total
     }
   }, [chains, pricing])
 
   // Table Data
   const sortedChains = useMemo(() => {
     let filtered = chains
-    if (filter !== 'all') {
-      filtered = chains.filter(c => c.type === filter)
+
+    if (envFilter !== 'all') {
+      filtered = filtered.filter(c => c.environment === envFilter)
     }
 
     return [...filtered].sort((a, b) => {
       const valA = a[sort.key] || 0
       const valB = b[sort.key] || 0
+
+      if (typeof valA === 'string') {
+        return sort.dir === 'desc' ? valB.localeCompare(valA) : valA.localeCompare(valB)
+      }
       return sort.dir === 'desc' ? valB - valA : valA - valB
     })
-  }, [chains, filter, sort])
+  }, [chains, envFilter, sort])
 
   // Formatters
   const fmtMoney = (n) => widthCheck(n) ? `$${(n / 1000000).toFixed(1)}M` : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n)
@@ -104,7 +145,7 @@ function App() {
       </header>
 
       <main>
-        {/* Revenue Cards */}
+        {/* Revenue Cards (Keep EVM Breakdown as cost basis) */}
         <section className="kpi-grid">
           <div className="card glow-evm">
             <h3>EVM Ecosystem</h3>
@@ -137,18 +178,16 @@ function App() {
           </div>
         </section>
 
-
-
-        {/* Charts Section */}
+        {/* Charts Section (Switched to Environment as requested) */}
         <section className="charts-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '40px' }}>
           <div className="card">
-            <h3>TPS Distribution</h3>
+            <h3>TPS by Environment</h3>
             <div style={{ height: '300px' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={[
-                    { name: 'EVM', value: stats.evm.tps, color: '#00f3ff' },
-                    { name: 'Non-EVM', value: stats.nonEvm.tps, color: '#bc13fe' }
+                    { name: 'Mainnet', value: stats.mainnet.tps, color: '#0aff0a' },
+                    { name: 'Testnet', value: stats.testnet.tps, color: '#fbbf24' }
                   ]}
                   margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                 >
@@ -162,7 +201,7 @@ function App() {
                   />
                   <Bar dataKey="value">
                     {
-                      [{ color: '#00f3ff' }, { color: '#bc13fe' }].map((entry, index) => (
+                      [{ color: '#0aff0a' }, { color: '#fbbf24' }].map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))
                     }
@@ -173,13 +212,13 @@ function App() {
           </div>
 
           <div className="card">
-            <h3>Transaction History</h3>
+            <h3>History (Tx) by Environment</h3>
             <div style={{ height: '300px' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={[
-                    { name: 'EVM', value: stats.evm.hist, color: '#00f3ff' },
-                    { name: 'Non-EVM', value: stats.nonEvm.hist, color: '#bc13fe' }
+                    { name: 'Mainnet', value: stats.mainnet.hist, color: '#0aff0a' },
+                    { name: 'Testnet', value: stats.testnet.hist, color: '#fbbf24' }
                   ]}
                   margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                 >
@@ -193,7 +232,7 @@ function App() {
                   />
                   <Bar dataKey="value">
                     {
-                      [{ color: '#00f3ff' }, { color: '#bc13fe' }].map((entry, index) => (
+                      [{ color: '#0aff0a' }, { color: '#fbbf24' }].map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))
                     }
@@ -242,9 +281,9 @@ function App() {
           <div className="table-header">
             <h3>Chain Metrics ({sortedChains.length})</h3>
             <div className="filters">
-              <button className={filter === 'all' ? 'active' : ''} onClick={() => setFilter('all')}>All</button>
-              <button className={filter === 'EVM' ? 'active' : ''} onClick={() => setFilter('EVM')}>EVM</button>
-              <button className={filter === 'Non-EVM' ? 'active' : ''} onClick={() => setFilter('Non-EVM')}>Non-EVM</button>
+              <button className={envFilter === 'all' ? 'active' : ''} onClick={() => setEnvFilter('all')}>All</button>
+              <button className={envFilter === 'Mainnet' ? 'active' : ''} onClick={() => setEnvFilter('Mainnet')}>Mainnet</button>
+              <button className={envFilter === 'Testnet' ? 'active' : ''} onClick={() => setEnvFilter('Testnet')}>Testnet</button>
             </div>
           </div>
 
@@ -252,7 +291,8 @@ function App() {
             <table>
               <thead>
                 <tr>
-                  <th onClick={() => handleSort('chain_name')}>Name</th>
+                  <th onClick={() => handleSort('clean_name')}>Name</th>
+                  <th onClick={() => handleSort('environment')}>Env</th>
                   <th onClick={() => handleSort('type')}>Type</th>
                   <th onClick={() => handleSort('health_status')}>Status</th>
                   <th onClick={() => handleSort('tps_10min')} className="right">TPS (Live)</th>
@@ -262,7 +302,8 @@ function App() {
               <tbody>
                 {sortedChains.map(c => (
                   <tr key={c.chain_id}>
-                    <td>{c.chain_name}</td>
+                    <td>{c.clean_name}</td>
+                    <td><span className={`badge ${c.environment === 'Mainnet' ? 'live' : 'type'}`} style={{ color: c.environment === 'Mainnet' ? '#0aff0a' : '#fbbf24', background: 'rgba(255,255,255,0.05)' }}>{c.environment}</span></td>
                     <td><span className={`badge ${c.type}`}>{c.type}</span></td>
                     <td><span className={`status-badge ${c.health_status === 'Live' ? 'live' : 'error'}`}>{c.health_status || 'Unknown'}</span></td>
                     <td className="right">{c.tps_10min?.toFixed(2)}</td>
@@ -275,7 +316,7 @@ function App() {
           <div className="table-footer">Showing all {chains.length} chains</div>
         </section>
       </main>
-    </div >
+    </div>
   )
 }
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts'
 
 function App() {
   const [chains, setChains] = useState([])
@@ -136,6 +137,73 @@ function App() {
           </div>
         </section>
 
+
+
+        {/* Charts Section */}
+        <section className="charts-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '40px' }}>
+          <div className="card">
+            <h3>TPS Distribution</h3>
+            <div style={{ height: '300px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={[
+                    { name: 'EVM', value: stats.evm.tps, color: '#00f3ff' },
+                    { name: 'Non-EVM', value: stats.nonEvm.tps, color: '#bc13fe' }
+                  ]}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="name" stroke="#94a3b8" />
+                  <YAxis stroke="#94a3b8" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#0a0b1e', border: '1px solid rgba(255,255,255,0.1)' }}
+                    itemStyle={{ color: '#fff' }}
+                    formatter={(value) => [value.toFixed(2), "TPS"]}
+                  />
+                  <Bar dataKey="value">
+                    {
+                      [{ color: '#00f3ff' }, { color: '#bc13fe' }].map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))
+                    }
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="card">
+            <h3>Transaction History</h3>
+            <div style={{ height: '300px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={[
+                    { name: 'EVM', value: stats.evm.hist, color: '#00f3ff' },
+                    { name: 'Non-EVM', value: stats.nonEvm.hist, color: '#bc13fe' }
+                  ]}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="name" stroke="#94a3b8" />
+                  <YAxis stroke="#94a3b8" tickFormatter={(value) => (value / 1000000).toFixed(0) + 'M'} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#0a0b1e', border: '1px solid rgba(255,255,255,0.1)' }}
+                    itemStyle={{ color: '#fff' }}
+                    formatter={(value) => [(value / 1000000000).toFixed(2) + 'B', "Tx Count"]}
+                  />
+                  <Bar dataKey="value">
+                    {
+                      [{ color: '#00f3ff' }, { color: '#bc13fe' }].map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))
+                    }
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </section>
+
         {/* Controls */}
         <section className="controls-section">
           <div className="card control-group">
@@ -207,7 +275,7 @@ function App() {
           <div className="table-footer">Showing all {chains.length} chains</div>
         </section>
       </main>
-    </div>
+    </div >
   )
 }
 

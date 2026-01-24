@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 function App() {
   const [chains, setChains] = useState([])
   const [loading, setLoading] = useState(true)
+  const [currentView, setCurrentView] = useState('dashboard') // 'dashboard' or 'graveyard'
 
   // Pricing State
   const [pricing, setPricing] = useState({
@@ -12,9 +13,6 @@ function App() {
   })
 
   // Table State
-  const [filter, setFilter] = useState('all') // 'all', 'Mainnet', 'Testnet' (Updated from EVM/Non-EVM based on focus, or add more?)
-  // Let's keep filters flexible: Type or Env? 
-  // User asked to "divide by environment"
   const [envFilter, setEnvFilter] = useState('all') // 'all', 'Mainnet', 'Testnet'
   const [sort, setSort] = useState({ key: 'tps_10min', dir: 'desc' })
 
@@ -44,7 +42,11 @@ function App() {
       .catch(err => console.error("API Error:", err))
   }, [])
 
-  // Calculations
+  // Separate live and dead chains
+  const liveChains = useMemo(() => chains.filter(c => !c.is_dead), [chains])
+  const deadChains = useMemo(() => chains.filter(c => c.is_dead), [chains])
+
+  // Calculations (only for live chains)
   const stats = useMemo(() => {
     let evmTps = 0, evmHist = 0
     let nonEvmTps = 0, nonEvmHist = 0
@@ -53,7 +55,7 @@ function App() {
 
     let total = 0
 
-    chains.forEach(c => {
+    liveChains.forEach(c => {
       const tps = c.tps_10min || 0
       const hist = c.total_tx_count || 0
 
@@ -74,32 +76,26 @@ function App() {
         testnetTps += tps
         testnetHist += hist
       }
+
+      total++
     })
 
-    // Revenue (Keep EVM based for now as per previous logic, or split by env? 
-    // Pricing model was EVM vs Non-EVM. I'll keep revenue based on Architecture Type as that's usually the cost driver).
-    const evmArr = evmTps * pricing.evm.tps
-    const evmSetup = (evmHist / 1000000) * pricing.evm.setup
-    const evmTotal = evmArr + evmSetup
-
-    const nonEvmArr = nonEvmTps * pricing.nonEvm.tps
-    const nonEvmSetup = (nonEvmHist / 1000000) * pricing.nonEvm.setup
-    const nonEvmTotal = nonEvmArr + nonEvmSetup
-
-    total = evmTotal + nonEvmTotal
+    const evmRev = evmTps * pricing.evm.tps + (evmHist / 1000000) * pricing.evm.setup
+    const nonEvmRev = nonEvmTps * pricing.nonEvm.tps + (nonEvmHist / 1000000) * pricing.nonEvm.setup
 
     return {
-      evm: { tps: evmTps, hist: evmHist, rev: evmTotal, arr: evmArr, setup: evmSetup },
-      nonEvm: { tps: nonEvmTps, hist: nonEvmHist, rev: nonEvmTotal, arr: nonEvmArr, setup: nonEvmSetup },
+      evm: { tps: evmTps, hist: evmHist, rev: evmRev, arr: evmTps * pricing.evm.tps * 12, setup: (evmHist / 1000000) * pricing.evm.setup },
+      nonEvm: { tps: nonEvmTps, hist: nonEvmHist, rev: nonEvmRev, arr: nonEvmTps * pricing.nonEvm.tps * 12, setup: (nonEvmHist / 1000000) * pricing.nonEvm.setup },
       mainnet: { tps: mainnetTps, hist: mainnetHist },
       testnet: { tps: testnetTps, hist: testnetHist },
-      total
+      total: evmRev + nonEvmRev,
+      count: total
     }
-  }, [chains, pricing])
+  }, [liveChains, pricing])
 
-  // Table Data
-  const sortedChains = useMemo(() => {
-    let filtered = chains
+  // Table Data for dashboard
+  const sortedLiveChains = useMemo(() => {
+    let filtered = liveChains
 
     if (envFilter !== 'all') {
       filtered = filtered.filter(c => c.environment === envFilter)
@@ -114,7 +110,16 @@ function App() {
       }
       return sort.dir === 'desc' ? valB - valA : valA - valB
     })
-  }, [chains, envFilter, sort])
+  }, [liveChains, envFilter, sort])
+
+  // Table Data for graveyard
+  const sortedDeadChains = useMemo(() => {
+    return [...deadChains].sort((a, b) => {
+      const valA = a.clean_name || ''
+      const valB = b.clean_name || ''
+      return valA.localeCompare(valB)
+    })
+  }, [deadChains])
 
   // Formatters
   const fmtMoney = (n) => widthCheck(n) ? `$${(n / 1000000).toFixed(1)}M` : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n)
@@ -135,187 +140,249 @@ function App() {
     }))
   }
 
+  if (loading) {
+    return <div className="loading">Loading blockchain data...</div>
+  }
+
   return (
     <div className="app-container">
       <header>
         <h1>BLOCKCHAIN REVENUE SIMULATOR</h1>
+        <nav className="main-nav">
+          <button
+            className={currentView === 'dashboard' ? 'active' : ''}
+            onClick={() => setCurrentView('dashboard')}
+          >
+            📊 Dashboard ({liveChains.length})
+          </button>
+          <button
+            className={currentView === 'graveyard' ? 'active graveyard-btn' : 'graveyard-btn'}
+            onClick={() => setCurrentView('graveyard')}
+          >
+            💀 Graveyard ({deadChains.length})
+          </button>
+        </nav>
         <div className="status">
           <span className="dot"></span> Connected to Node
         </div>
       </header>
 
-      <main>
-        {/* Revenue Cards (Keep EVM Breakdown as cost basis) */}
-        <section className="kpi-grid">
-          <div className="card glow-evm">
-            <h3>EVM Ecosystem</h3>
-            <div className="big-num">{fmtMoney(stats.evm.rev)}</div>
-            <div className="sub-stats">
-              <div>ARR: {fmtMoney(stats.evm.arr)}</div>
-              <div>Setup: {fmtMoney(stats.evm.setup)}</div>
+      {currentView === 'graveyard' ? (
+        <main className="graveyard-view">
+          <section className="graveyard-header">
+            <div className="card graveyard-intro">
+              <h2>💀 Blockchain Graveyard</h2>
+              <p>
+                These {deadChains.length} chains appear to be defunct - their domains no longer resolve.
+                This is the final resting place for abandoned blockchain projects.
+              </p>
             </div>
-          </div>
+          </section>
 
-          <div className="card glow-total">
-            <h3>TOTAL POTENTIAL REVENUE</h3>
-            <div className="mega-num">{fmtMoney(stats.total)}</div>
-            <div className="bar-container">
-              <div className="bar-fill evm" style={{ width: `${(stats.evm.rev / stats.total) * 100}%` }}></div>
-              <div className="bar-fill nonevm" style={{ width: `${(stats.nonEvm.rev / stats.total) * 100}%` }}></div>
-            </div>
-            <div className="legend">
-              <span className="evm-text">EVM</span> vs <span className="nonevm-text">Non-EVM</span>
-            </div>
-          </div>
-
-          <div className="card glow-nonevm">
-            <h3>Non-EVM Ecosystem</h3>
-            <div className="big-num">{fmtMoney(stats.nonEvm.rev)}</div>
-            <div className="sub-stats">
-              <div>ARR: {fmtMoney(stats.nonEvm.arr)}</div>
-              <div>Setup: {fmtMoney(stats.nonEvm.setup)}</div>
-            </div>
-          </div>
-        </section>
-
-        {/* Charts Section (Switched to Environment as requested) */}
-        <section className="charts-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '40px' }}>
-          <div className="card">
-            <h3>TPS by Environment</h3>
-            <div style={{ height: '300px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={[
-                    { name: 'Mainnet', value: stats.mainnet.tps, color: '#0aff0a' },
-                    { name: 'Testnet', value: stats.testnet.tps, color: '#fbbf24' }
-                  ]}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="name" stroke="#94a3b8" />
-                  <YAxis stroke="#94a3b8" />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#0a0b1e', border: '1px solid rgba(255,255,255,0.1)' }}
-                    itemStyle={{ color: '#fff' }}
-                    formatter={(value) => [value.toFixed(2), "TPS"]}
-                  />
-                  <Bar dataKey="value">
-                    {
-                      [{ color: '#0aff0a' }, { color: '#fbbf24' }].map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))
-                    }
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="card">
-            <h3>History (Tx) by Environment</h3>
-            <div style={{ height: '300px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={[
-                    { name: 'Mainnet', value: stats.mainnet.hist, color: '#0aff0a' },
-                    { name: 'Testnet', value: stats.testnet.hist, color: '#fbbf24' }
-                  ]}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="name" stroke="#94a3b8" />
-                  <YAxis stroke="#94a3b8" tickFormatter={(value) => (value / 1000000).toFixed(0) + 'M'} />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#0a0b1e', border: '1px solid rgba(255,255,255,0.1)' }}
-                    itemStyle={{ color: '#fff' }}
-                    formatter={(value) => [(value / 1000000000).toFixed(2) + 'B', "Tx Count"]}
-                  />
-                  <Bar dataKey="value">
-                    {
-                      [{ color: '#0aff0a' }, { color: '#fbbf24' }].map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))
-                    }
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </section>
-
-        {/* Controls */}
-        <section className="controls-section">
-          <div className="card control-group">
-            <h4>EVM Pricing</h4>
-            <div className="input-row">
-              <label>Price/TPS ($)</label>
-              <input type="number" value={pricing.evm.tps} onChange={e => handlePriceChange('evm', 'tps', e.target.value)} />
-            </div>
-            <div className="input-row">
-              <label>Setup/1M Tx ($)</label>
-              <input type="number" value={pricing.evm.setup} onChange={e => handlePriceChange('evm', 'setup', e.target.value)} />
-            </div>
-          </div>
-
-          <div className="card control-group">
-            <h4>Non-EVM Pricing</h4>
-            <div className="input-row">
-              <label>Price/TPS ($)</label>
-              <input type="number" value={pricing.nonEvm.tps} onChange={e => handlePriceChange('nonEvm', 'tps', e.target.value)} />
-            </div>
-            <div className="input-row">
-              <label>Setup/1M Tx ($)</label>
-              <input type="number" value={pricing.nonEvm.setup} onChange={e => handlePriceChange('nonEvm', 'setup', e.target.value)} />
-            </div>
-          </div>
-
-          <div className="card actions">
-            <h4>Actions</h4>
-            <button onClick={() => setPricing({ evm: { tps: 4000, setup: 200 }, nonEvm: { tps: 16000, setup: 800 } })}>Reset to Premium</button>
-            <button onClick={() => setPricing({ evm: { tps: 4000, setup: 200 }, nonEvm: { tps: 4000, setup: 200 } })}>Set Parity</button>
-          </div>
-        </section>
-
-        {/* Data Table */}
-        <section className="data-section">
-          <div className="table-header">
-            <h3>Chain Metrics ({sortedChains.length})</h3>
-            <div className="filters">
-              <button className={envFilter === 'all' ? 'active' : ''} onClick={() => setEnvFilter('all')}>All</button>
-              <button className={envFilter === 'Mainnet' ? 'active' : ''} onClick={() => setEnvFilter('Mainnet')}>Mainnet</button>
-              <button className={envFilter === 'Testnet' ? 'active' : ''} onClick={() => setEnvFilter('Testnet')}>Testnet</button>
-            </div>
-          </div>
-
-          <div className="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th onClick={() => handleSort('clean_name')}>Name</th>
-                  <th onClick={() => handleSort('environment')}>Env</th>
-                  <th onClick={() => handleSort('type')}>Type</th>
-                  <th onClick={() => handleSort('health_status')}>Status</th>
-                  <th onClick={() => handleSort('tps_10min')} className="right">TPS (Live)</th>
-                  <th onClick={() => handleSort('total_tx_count')} className="right">History (Total Tx)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedChains.map(c => (
-                  <tr key={c.chain_id}>
-                    <td>{c.clean_name}</td>
-                    <td><span className={`badge ${c.environment === 'Mainnet' ? 'live' : 'type'}`} style={{ color: c.environment === 'Mainnet' ? '#0aff0a' : '#fbbf24', background: 'rgba(255,255,255,0.05)' }}>{c.environment}</span></td>
-                    <td><span className={`badge ${c.type}`}>{c.type}</span></td>
-                    <td><span className={`status-badge ${c.health_status === 'Live' ? 'live' : 'error'}`}>{c.health_status || 'Unknown'}</span></td>
-                    <td className="right">{c.tps_10min?.toFixed(2)}</td>
-                    <td className="right">{fmtNum(c.total_tx_count)}</td>
+          <section className="data-section">
+            <div className="table-wrapper graveyard-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Chain Name</th>
+                    <th>Environment</th>
+                    <th>Type</th>
+                    <th>Chain ID</th>
+                    <th>Last Known RPC</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="table-footer">Showing all {chains.length} chains</div>
-        </section>
-      </main>
+                </thead>
+                <tbody>
+                  {sortedDeadChains.map(c => (
+                    <tr key={c.chain_id} className="dead-row">
+                      <td className="dead-name">💀 {c.clean_name}</td>
+                      <td><span className="badge dead">{c.environment}</span></td>
+                      <td><span className="badge dead">{c.type}</span></td>
+                      <td className="chain-id">{c.chain_id}</td>
+                      <td className="rpc-url">{c.rpc_url || 'N/A'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="table-footer graveyard-footer">
+              🪦 RIP to {deadChains.length} blockchain projects
+            </div>
+          </section>
+        </main>
+      ) : (
+        <main>
+          {/* Revenue Cards */}
+          <section className="kpi-grid">
+            <div className="card glow-evm">
+              <h3>EVM Ecosystem</h3>
+              <div className="big-num">{fmtMoney(stats.evm.rev)}</div>
+              <div className="sub-stats">
+                <div>ARR: {fmtMoney(stats.evm.arr)}</div>
+                <div>Setup: {fmtMoney(stats.evm.setup)}</div>
+              </div>
+            </div>
+
+            <div className="card glow-total">
+              <h3>TOTAL POTENTIAL REVENUE</h3>
+              <div className="mega-num">{fmtMoney(stats.total)}</div>
+              <div className="bar-container">
+                <div className="bar-fill evm" style={{ width: `${(stats.evm.rev / stats.total) * 100}%` }}></div>
+                <div className="bar-fill nonevm" style={{ width: `${(stats.nonEvm.rev / stats.total) * 100}%` }}></div>
+              </div>
+              <div className="legend">
+                <span className="evm-text">EVM</span> vs <span className="nonevm-text">Non-EVM</span>
+              </div>
+            </div>
+
+            <div className="card glow-nonevm">
+              <h3>Non-EVM Ecosystem</h3>
+              <div className="big-num">{fmtMoney(stats.nonEvm.rev)}</div>
+              <div className="sub-stats">
+                <div>ARR: {fmtMoney(stats.nonEvm.arr)}</div>
+                <div>Setup: {fmtMoney(stats.nonEvm.setup)}</div>
+              </div>
+            </div>
+          </section>
+
+          {/* Charts Section - Environment Based */}
+          <section className="charts-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+            <div className="card">
+              <h3>TPS Distribution by Environment</h3>
+              <div style={{ height: '300px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={[
+                      { name: 'Mainnet', value: stats.mainnet.tps, color: '#0aff0a' },
+                      { name: 'Testnet', value: stats.testnet.tps, color: '#fbbf24' }
+                    ]}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                    <XAxis dataKey="name" stroke="#94a3b8" />
+                    <YAxis stroke="#94a3b8" />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#0a0b1e', border: '1px solid rgba(255,255,255,0.1)' }}
+                      itemStyle={{ color: '#fff' }}
+                      formatter={(value) => [value.toFixed(2), "TPS"]}
+                    />
+                    <Bar dataKey="value">
+                      {
+                        [{ color: '#0aff0a' }, { color: '#fbbf24' }].map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))
+                      }
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="card">
+              <h3>History (Tx) by Environment</h3>
+              <div style={{ height: '300px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={[
+                      { name: 'Mainnet', value: stats.mainnet.hist, color: '#0aff0a' },
+                      { name: 'Testnet', value: stats.testnet.hist, color: '#fbbf24' }
+                    ]}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                    <XAxis dataKey="name" stroke="#94a3b8" />
+                    <YAxis stroke="#94a3b8" tickFormatter={(value) => (value / 1000000).toFixed(0) + 'M'} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#0a0b1e', border: '1px solid rgba(255,255,255,0.1)' }}
+                      itemStyle={{ color: '#fff' }}
+                      formatter={(value) => [(value / 1000000000).toFixed(2) + 'B', "Tx Count"]}
+                    />
+                    <Bar dataKey="value">
+                      {
+                        [{ color: '#0aff0a' }, { color: '#fbbf24' }].map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))
+                      }
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </section>
+
+          {/* Controls */}
+          <section className="controls-section">
+            <div className="card control-group">
+              <h4>EVM Pricing</h4>
+              <div className="input-row">
+                <label>Price/TPS ($)</label>
+                <input type="number" value={pricing.evm.tps} onChange={e => handlePriceChange('evm', 'tps', e.target.value)} />
+              </div>
+              <div className="input-row">
+                <label>Setup/1M Tx ($)</label>
+                <input type="number" value={pricing.evm.setup} onChange={e => handlePriceChange('evm', 'setup', e.target.value)} />
+              </div>
+            </div>
+
+            <div className="card control-group">
+              <h4>Non-EVM Pricing</h4>
+              <div className="input-row">
+                <label>Price/TPS ($)</label>
+                <input type="number" value={pricing.nonEvm.tps} onChange={e => handlePriceChange('nonEvm', 'tps', e.target.value)} />
+              </div>
+              <div className="input-row">
+                <label>Setup/1M Tx ($)</label>
+                <input type="number" value={pricing.nonEvm.setup} onChange={e => handlePriceChange('nonEvm', 'setup', e.target.value)} />
+              </div>
+            </div>
+
+            <div className="card actions">
+              <h4>Actions</h4>
+              <button onClick={() => setPricing({ evm: { tps: 4000, setup: 200 }, nonEvm: { tps: 16000, setup: 800 } })}>Reset to Premium</button>
+              <button onClick={() => setPricing({ evm: { tps: 4000, setup: 200 }, nonEvm: { tps: 4000, setup: 200 } })}>Set Parity</button>
+            </div>
+          </section>
+
+          {/* Data Table */}
+          <section className="data-section">
+            <div className="table-header">
+              <h3>Chain Metrics ({sortedLiveChains.length})</h3>
+              <div className="filters">
+                <button className={envFilter === 'all' ? 'active' : ''} onClick={() => setEnvFilter('all')}>All</button>
+                <button className={envFilter === 'Mainnet' ? 'active' : ''} onClick={() => setEnvFilter('Mainnet')}>Mainnet</button>
+                <button className={envFilter === 'Testnet' ? 'active' : ''} onClick={() => setEnvFilter('Testnet')}>Testnet</button>
+              </div>
+            </div>
+
+            <div className="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th onClick={() => handleSort('clean_name')}>Name</th>
+                    <th onClick={() => handleSort('environment')}>Env</th>
+                    <th onClick={() => handleSort('type')}>Type</th>
+                    <th onClick={() => handleSort('health_status')}>Status</th>
+                    <th onClick={() => handleSort('tps_10min')} className="right">TPS (Live)</th>
+                    <th onClick={() => handleSort('total_tx_count')} className="right">History (Total Tx)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedLiveChains.map(c => (
+                    <tr key={c.chain_id}>
+                      <td>{c.clean_name}</td>
+                      <td><span className={`badge ${c.environment === 'Mainnet' ? 'live' : 'type'}`} style={{ color: c.environment === 'Mainnet' ? '#0aff0a' : '#fbbf24', background: 'rgba(255,255,255,0.05)' }}>{c.environment}</span></td>
+                      <td><span className={`badge ${c.type}`}>{c.type}</span></td>
+                      <td><span className={`status-badge ${c.health_status === 'Live' || c.health_status?.includes('Scraped') ? 'live' : 'error'}`}>{c.health_status || 'Unknown'}</span></td>
+                      <td className="right">{c.tps_10min?.toFixed(2)}</td>
+                      <td className="right">{fmtNum(c.total_tx_count)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="table-footer">Showing {sortedLiveChains.length} active chains</div>
+          </section>
+        </main>
+      )}
     </div>
   )
 }

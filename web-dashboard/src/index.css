@@ -324,3 +324,142 @@ td {
   display: inline-block;
   vertical-align: middle;
 }
+
+/* Main Navigation */
+.main-nav {
+  display: flex;
+  gap: 10px;
+}
+
+.main-nav button {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.main-nav button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.main-nav button.active {
+  background: var(--accent-cyan);
+  color: var(--bg);
+  border-color: var(--accent-cyan);
+}
+
+.main-nav button.graveyard-btn {
+  background: rgba(100, 100, 100, 0.2);
+}
+
+.main-nav button.graveyard-btn:hover {
+  background: rgba(150, 100, 100, 0.3);
+}
+
+.main-nav button.graveyard-btn.active {
+  background: #4a3f3f;
+  color: #ff6b6b;
+  border-color: #5a4a4a;
+}
+
+/* Graveyard View */
+.graveyard-view {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.graveyard-header {
+  margin-bottom: 2rem;
+}
+
+.graveyard-intro {
+  background: linear-gradient(135deg, rgba(74, 63, 63, 0.3), rgba(50, 40, 40, 0.3));
+  border: 1px solid rgba(100, 80, 80, 0.3);
+  text-align: center;
+  padding: 2rem;
+}
+
+.graveyard-intro h2 {
+  font-size: 2rem;
+  margin: 0 0 1rem 0;
+  color: #a0a0a0;
+}
+
+.graveyard-intro p {
+  color: var(--text-dim);
+  margin: 0;
+  font-size: 1rem;
+}
+
+.graveyard-table {
+  background: rgba(40, 35, 35, 0.3);
+}
+
+.graveyard-table table {
+  border-color: rgba(100, 80, 80, 0.2);
+}
+
+.dead-row {
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.dead-row:hover {
+  opacity: 1;
+}
+
+.dead-name {
+  color: #a0a0a0;
+}
+
+.badge.dead {
+  background: rgba(100, 80, 80, 0.3);
+  color: #888;
+  border: 1px solid rgba(100, 80, 80, 0.4);
+}
+
+.chain-id {
+  font-family: 'Fira Code', monospace;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
+.rpc-url {
+  font-family: 'Fira Code', monospace;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.graveyard-footer {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.2rem;
+  color: var(--text-dim);
+}

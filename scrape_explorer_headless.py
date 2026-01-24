@@ -51,6 +51,7 @@ def get_failed_chains():
         WHERE status != 'success' 
         AND explorer_url IS NOT NULL 
         AND health_status != 'Live (Scraped)'
+        AND (is_dead IS NULL OR is_dead = 0)
         LIMIT 100
     """)
     
@@ -139,6 +140,7 @@ async def main():
         cursor = conn.cursor()
         
         updated = 0
+        dead_count = 0
         
         # Process in batches
         for i in range(0, len(chains), MAX_CONCURRENT):
@@ -159,6 +161,7 @@ async def main():
                     
                     if updates:
                         updates.append("health_status = 'Live (Scraped)'")
+                        updates.append("is_dead = 0")
                         updates.append("last_updated_at = ?")
                         params.append(time.time())
                         params.append(cid)
@@ -166,6 +169,14 @@ async def main():
                         sql = f"UPDATE chain_metrics SET {', '.join(updates)} WHERE chain_id = ?"
                         cursor.execute(sql, tuple(params))
                         updated += 1
+                
+                # Mark as dead if DNS resolution failed
+                elif "ERR_NAME_NOT_RESOLVED" in status:
+                    cursor.execute(
+                        "UPDATE chain_metrics SET is_dead = 1, health_status = 'Dead (Domain Gone)' WHERE chain_id = ?",
+                        (cid,)
+                    )
+                    dead_count += 1
             
             conn.commit()
             print(f"Processed batch {i // MAX_CONCURRENT + 1}/{(len(chains) + MAX_CONCURRENT - 1) // MAX_CONCURRENT}")
@@ -173,7 +184,7 @@ async def main():
         await browser.close()
         conn.close()
         
-        print(f"\nScraping complete. Updated {updated} chains.")
+        print(f"\nScraping complete. Updated {updated} chains, marked {dead_count} as dead.")
 
 
 if __name__ == "__main__":

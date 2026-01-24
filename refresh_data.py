@@ -47,7 +47,11 @@ def main():
     # This fulfills the "retry finding other RPCs" requirement
     run_command("python3 measure_force_evm.py", "Forced EVM Retry")
 
-    # 4. Sync to Cloud Database
+    # 4. Run Headless Browser Scraping (for chains with failed RPC)
+    # Uses Playwright to scrape block explorer pages
+    run_command("python3 scrape_explorer_headless.py", "Headless Explorer Scraping")
+
+    # 5. Sync to Cloud Database
     # Pushes the updated local SQLite DB to Vercel Postgres
     if os.environ.get("POSTGRES_URL"):
         run_command("python3 migrate_postgres.py", "Sync to Vercel Postgres")

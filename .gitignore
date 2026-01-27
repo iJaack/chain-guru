@@ -1,2 +1,5 @@
 .vercel
 .env*.local
+/data/
+*.db
+active_blockchains.csv

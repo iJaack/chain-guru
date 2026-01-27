@@ -2,14 +2,22 @@ import urllib.request
 import json
 import sqlite3
 import ssl
+import os
 import csv
 
 DB_FILE = 'blockchain_data.db'
 
+def get_ssl_context():
+    if os.environ.get("INSECURE_SSL", "").lower() in ("1", "true", "yes"):
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return ctx
+    return None
+
+
 def make_request(url):
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
+    ctx = get_ssl_context()
     req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
     with urllib.request.urlopen(req, timeout=15, context=ctx) as response:
         return json.loads(response.read())

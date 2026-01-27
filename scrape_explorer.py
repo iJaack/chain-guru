@@ -1,6 +1,7 @@
 import sqlite3
 import urllib.request
 import ssl
+import os
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -28,15 +29,22 @@ def clean_num(s):
     except:
         return 0
 
+def get_ssl_context():
+    if os.environ.get("INSECURE_SSL", "").lower() in ("1", "true", "yes"):
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return ctx
+    return None
+
+
 def scrape_chain(chain_item):
     chain_id, name, explorer_url = chain_item
     
     if not explorer_url:
         return chain_id, None, None, "no_url"
         
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
+    ctx = get_ssl_context()
     
     # Normalize URL
     if not explorer_url.startswith('http'):

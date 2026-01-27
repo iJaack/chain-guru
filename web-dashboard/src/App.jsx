@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 function App() {
   const [chains, setChains] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [currentView, setCurrentView] = useState('dashboard') // 'dashboard' or 'graveyard'
 
   // Pricing State
@@ -17,29 +18,43 @@ function App() {
   const [sort, setSort] = useState({ key: 'tps_10min', dir: 'desc' })
 
   useEffect(() => {
-    fetch('/api/chains')
-      .then(res => res.json())
-      .then(data => {
-        // Process Names and Environment
-        const processed = data.map(c => {
-          let env = 'Mainnet'
-          let name = c.chain_name
-
-          if (name.toLowerCase().includes('testnet')) {
-            env = 'Testnet'
-            name = name.replace(/testnet/gi, '').trim()
-          } else if (name.toLowerCase().includes('mainnet')) {
-            name = name.replace(/mainnet/gi, '').trim()
-          }
-          // Remove trailing hyphens or spaces if any
-          name = name.replace(/-$/, '').trim()
-
-          return { ...c, clean_name: name, environment: env }
+    const fetchChains = () => {
+      fetch('/api/chains')
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`)
+          return res.json()
         })
-        setChains(processed)
-        setLoading(false)
-      })
-      .catch(err => console.error("API Error:", err))
+        .then(data => {
+          // Process Names and Environment
+          const processed = data.map(c => {
+            let env = 'Mainnet'
+            let name = c.chain_name
+
+            if (name.toLowerCase().includes('testnet')) {
+              env = 'Testnet'
+              name = name.replace(/testnet/gi, '').trim()
+            } else if (name.toLowerCase().includes('mainnet')) {
+              name = name.replace(/mainnet/gi, '').trim()
+            }
+            // Remove trailing hyphens or spaces if any
+            name = name.replace(/-$/, '').trim()
+
+            return { ...c, clean_name: name, environment: env }
+          })
+          setChains(processed)
+          setError(null)
+          setLoading(false)
+        })
+        .catch(err => {
+          console.error("API Error:", err)
+          setError(err.message || 'Failed to load data')
+          setLoading(false)
+        })
+    }
+
+    fetchChains()
+    const interval = setInterval(fetchChains, 5 * 60 * 1000)
+    return () => clearInterval(interval)
   }, [])
 
   // Separate live and dead chains
@@ -144,6 +159,15 @@ function App() {
     return <div className="loading">Loading blockchain data...</div>
   }
 
+  if (error) {
+    return (
+      <div className="loading">
+        <div>Failed to load data: {error}</div>
+        <button style={{ marginTop: '1rem' }} onClick={() => window.location.reload()}>Retry</button>
+      </div>
+    )
+  }
+
   return (
     <div className="app-container">
       <header>
@@ -226,8 +250,8 @@ function App() {
               <h3>TOTAL POTENTIAL REVENUE</h3>
               <div className="mega-num">{fmtMoney(stats.total)}</div>
               <div className="bar-container">
-                <div className="bar-fill evm" style={{ width: `${(stats.evm.rev / stats.total) * 100}%` }}></div>
-                <div className="bar-fill nonevm" style={{ width: `${(stats.nonEvm.rev / stats.total) * 100}%` }}></div>
+                <div className="bar-fill evm" style={{ width: `${stats.total > 0 ? (stats.evm.rev / stats.total) * 100 : 0}%` }}></div>
+                <div className="bar-fill nonevm" style={{ width: `${stats.total > 0 ? (stats.nonEvm.rev / stats.total) * 100 : 0}%` }}></div>
               </div>
               <div className="legend">
                 <span className="evm-text">EVM</span> vs <span className="nonevm-text">Non-EVM</span>

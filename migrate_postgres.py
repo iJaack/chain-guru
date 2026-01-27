@@ -53,6 +53,24 @@ def migrate():
         except Exception:
             pg_conn.rollback()
 
+        try:
+            pg_cursor.execute("ALTER TABLE chain_metrics ADD COLUMN x_handle TEXT")
+            pg_conn.commit()
+            print("Added x_handle column to Postgres.")
+        except psycopg2.errors.DuplicateColumn:
+            pg_conn.rollback()
+        except Exception:
+            pg_conn.rollback()
+
+        try:
+            pg_cursor.execute("ALTER TABLE chain_metrics ADD COLUMN explorer_url TEXT")
+            pg_conn.commit()
+            print("Added explorer_url column to Postgres.")
+        except psycopg2.errors.DuplicateColumn:
+            pg_conn.rollback()
+        except Exception:
+            pg_conn.rollback()
+
         # Create Table if not exists
         pg_cursor.execute('''
             CREATE TABLE IF NOT EXISTS chain_metrics (
@@ -65,7 +83,9 @@ def migrate():
                 error_message TEXT,
                 total_tx_count REAL,
                 health_status TEXT,
-                is_dead INTEGER DEFAULT 0
+                is_dead INTEGER DEFAULT 0,
+                x_handle TEXT,
+                explorer_url TEXT
             )
         ''')
         pg_conn.commit()
@@ -78,15 +98,17 @@ def migrate():
                  health = "Live" if item.get('status') == 'success' else item.get('error_message')
 
             pg_cursor.execute('''
-                INSERT INTO chain_metrics (chain_id, chain_name, rpc_url, tps_10min, last_updated_at, status, error_message, total_tx_count, health_status, is_dead)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO chain_metrics (chain_id, chain_name, rpc_url, tps_10min, last_updated_at, status, error_message, total_tx_count, health_status, is_dead, x_handle, explorer_url)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (chain_id) DO UPDATE SET
                     tps_10min = EXCLUDED.tps_10min,
                     total_tx_count = EXCLUDED.total_tx_count,
                     status = EXCLUDED.status,
                     last_updated_at = EXCLUDED.last_updated_at,
                     health_status = EXCLUDED.health_status,
-                    is_dead = EXCLUDED.is_dead
+                    is_dead = EXCLUDED.is_dead,
+                    x_handle = EXCLUDED.x_handle,
+                    explorer_url = EXCLUDED.explorer_url
             ''', (
                 item['chain_id'], 
                 item['chain_name'], 
@@ -97,7 +119,9 @@ def migrate():
                 item['error_message'],
                 item.get('total_tx_count', 0),
                 health,
-                item.get('is_dead', 0)
+                item.get('is_dead', 0),
+                item.get('x_handle'),
+                item.get('explorer_url')
             ))
             count += 1
         

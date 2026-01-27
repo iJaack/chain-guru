@@ -2,17 +2,21 @@ import urllib.request
 import csv
 import json
 import ssl
+import os
 
 def main():
     url = "https://chainid.network/chains.json"
     print(f"Fetching data from {url}...")
     
-    # Create a context that doesn't verify SSL certificates specifically for this
-    # simple data fetching script to avoid potential local SSL issues, though 
-    # normally we'd want verification.
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
+    def get_ssl_context():
+        if os.environ.get("INSECURE_SSL", "").lower() in ("1", "true", "yes"):
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            return ctx
+        return None
+
+    ctx = get_ssl_context()
 
     try:
         with urllib.request.urlopen(url, context=ctx) as response:

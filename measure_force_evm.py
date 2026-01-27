@@ -3,6 +3,7 @@ import sqlite3
 import time
 import urllib.request
 import ssl
+import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import random
 
@@ -26,16 +27,37 @@ def init_db():
             status TEXT,
             error_message TEXT,
             total_tx_count REAL,
-            health_status TEXT
+            health_status TEXT,
+            is_dead INTEGER DEFAULT 0,
+            explorer_url TEXT,
+            x_handle TEXT
         )
     ''')
+    for stmt in [
+        "ALTER TABLE chain_metrics ADD COLUMN total_tx_count REAL",
+        "ALTER TABLE chain_metrics ADD COLUMN health_status TEXT",
+        "ALTER TABLE chain_metrics ADD COLUMN is_dead INTEGER DEFAULT 0",
+        "ALTER TABLE chain_metrics ADD COLUMN explorer_url TEXT",
+        "ALTER TABLE chain_metrics ADD COLUMN x_handle TEXT",
+    ]:
+        try:
+            cursor.execute(stmt)
+        except Exception:
+            pass
     conn.commit()
     conn.close()
 
+def get_ssl_context():
+    if os.environ.get("INSECURE_SSL", "").lower() in ("1", "true", "yes"):
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return ctx
+    return None
+
+
 def make_request(url):
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
+    ctx = get_ssl_context()
     req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
     try:
         with urllib.request.urlopen(req, timeout=15, context=ctx) as response:

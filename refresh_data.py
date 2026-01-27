@@ -51,7 +51,10 @@ def main():
     # Uses Playwright to scrape block explorer pages
     run_command("python3 scrape_explorer_headless.py", "Headless Explorer Scraping")
 
-    # 5. Sync to Cloud Database
+    # 5. Scout X (Twitter) accounts for chains
+    run_command("python3 scout_x_accounts.py --sleep 6", "Scout X Accounts")
+
+    # 6. Sync to Cloud Database
     # Pushes the updated local SQLite DB to Vercel Postgres
     if os.environ.get("POSTGRES_URL"):
         run_command("python3 migrate_postgres.py", "Sync to Vercel Postgres")

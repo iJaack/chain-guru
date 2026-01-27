@@ -15,9 +15,11 @@ except ImportError:
 app = FastAPI()
 
 # Enable CORS for frontend
+origins_env = os.environ.get("ALLOWED_ORIGINS", "*")
+allow_origins = [o.strip() for o in origins_env.split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For dev simplicity
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -81,9 +83,14 @@ def get_summary():
     }
     
     for r in rows:
-        cid, tps, tx = r
-        if not tps: tps = 0
-        if not hist: hist = 0
+        if db_type == "postgres":
+            cid = r.get("chain_id")
+            tps = r.get("tps_10min") or 0
+            hist = r.get("total_tx_count") or 0
+        else:
+            cid, tps, hist = r
+            tps = tps or 0
+            hist = hist or 0
         
         if is_evm(str(cid)):
             metrics["evm"]["tps"] += tps
@@ -94,8 +101,6 @@ def get_summary():
             metrics["non_evm"]["history"] += hist
             metrics["non_evm"]["count"] += 1
             
-    return metrics
-
     return metrics
 
 

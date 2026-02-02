@@ -1,16 +1,8 @@
 import csv
 import json
 import urllib.request
-import ssl
 import os
-
-def get_ssl_context():
-    if os.environ.get("INSECURE_SSL", "").lower() in ("1", "true", "yes"):
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-        return ctx
-    return None
+from utils import get_ssl_context
 
 
 def make_request(url):

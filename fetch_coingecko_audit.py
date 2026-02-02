@@ -1,19 +1,11 @@
 import urllib.request
 import json
 import sqlite3
-import ssl
 import os
 import csv
+from utils import get_ssl_context
 
 DB_FILE = 'blockchain_data.db'
-
-def get_ssl_context():
-    if os.environ.get("INSECURE_SSL", "").lower() in ("1", "true", "yes"):
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-        return ctx
-    return None
 
 
 def make_request(url):

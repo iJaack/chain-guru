@@ -1,4 +1,5 @@
 import os
+import shlex
 import subprocess
 import sys
 import time
@@ -7,10 +8,13 @@ def run_command(command, description):
     print(f"\n--- Starting: {description} ---")
     start_time = time.time()
     try:
+        if isinstance(command, str):
+            command = shlex.split(command)
+
         # Run command and stream output
         process = subprocess.Popen(
-            command, 
-            shell=True, 
+            command,
+            shell=False,
             stdout=subprocess.PIPE, 
             stderr=subprocess.STDOUT,
             text=True

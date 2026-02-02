@@ -9,6 +9,9 @@ import sqlite3
 import asyncio
 import re
 import time
+import ipaddress
+import socket
+from urllib.parse import urlparse
 from playwright.async_api import async_playwright
 
 DB_FILE = "blockchain_data.db"
@@ -40,6 +43,60 @@ def clean_num(s):
         return 0
 
 
+def is_private_ip(ip_obj):
+    return (
+        ip_obj.is_private
+        or ip_obj.is_loopback
+        or ip_obj.is_link_local
+        or ip_obj.is_reserved
+        or ip_obj.is_multicast
+        or ip_obj.is_unspecified
+    )
+
+
+async def is_safe_url(url):
+    try:
+        parsed = urlparse(url)
+    except Exception as e:
+        return False, f"invalid_url:{e}"
+
+    if parsed.scheme not in ("http", "https"):
+        return False, "invalid_scheme"
+
+    host = parsed.hostname
+    if not host:
+        return False, "missing_host"
+
+    host_lower = host.strip(".").lower()
+    if host_lower in ("localhost", "localhost.localdomain") or host_lower.endswith(".localhost") or host_lower.endswith(".local"):
+        return False, "localhost_blocked"
+
+    try:
+        ip_obj = ipaddress.ip_address(host_lower)
+        if is_private_ip(ip_obj):
+            return False, "private_ip_blocked"
+        return True, None
+    except ValueError:
+        pass
+
+    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    try:
+        infos = await asyncio.get_running_loop().getaddrinfo(host, port, type=socket.SOCK_STREAM)
+    except socket.gaierror:
+        return False, "dns_error"
+
+    for info in infos:
+        addr = info[4][0]
+        try:
+            ip_obj = ipaddress.ip_address(addr)
+        except ValueError:
+            continue
+        if is_private_ip(ip_obj):
+            return False, "private_ip_blocked"
+
+    return True, None
+
+
 def get_failed_chains():
     """Get chains that failed RPC and have explorer URLs"""
     conn = sqlite3.connect(DB_FILE)
@@ -68,6 +125,10 @@ async def scrape_chain(browser, chain_id, name, explorer_url):
     # Normalize URL
     if not explorer_url.startswith('http'):
         explorer_url = 'https://' + explorer_url
+
+    safe, reason = await is_safe_url(explorer_url)
+    if not safe:
+        return chain_id, 0, 0, f"blocked_ssrf:{reason}"
     
     try:
         context = await browser.new_context(

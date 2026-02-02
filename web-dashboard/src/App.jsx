@@ -116,14 +116,51 @@ function App() {
       filtered = filtered.filter(c => c.environment === envFilter)
     }
 
-    return [...filtered].sort((a, b) => {
-      const valA = a[sort.key] || 0
-      const valB = b[sort.key] || 0
-
-      if (typeof valA === 'string') {
-        return sort.dir === 'desc' ? valB.localeCompare(valA) : valA.localeCompare(valB)
+    const normalizeSortValue = (value) => {
+      if (value === null || value === undefined) {
+        return { kind: 'empty', value: null }
       }
-      return sort.dir === 'desc' ? valB - valA : valA - valB
+      if (typeof value === 'number') {
+        return Number.isFinite(value) ? { kind: 'number', value } : { kind: 'empty', value: null }
+      }
+      if (typeof value === 'string') {
+        const trimmed = value.trim()
+        if (!trimmed) return { kind: 'empty', value: null }
+        const numeric = Number(trimmed.replace(/,/g, ''))
+        if (Number.isFinite(numeric)) {
+          return { kind: 'number', value: numeric }
+        }
+        return { kind: 'string', value: trimmed }
+      }
+      if (typeof value === 'boolean') {
+        return { kind: 'number', value: value ? 1 : 0 }
+      }
+      return { kind: 'string', value: String(value) }
+    }
+
+    const compareValues = (a, b) => {
+      const valA = normalizeSortValue(a)
+      const valB = normalizeSortValue(b)
+
+      if (valA.kind === 'empty' && valB.kind === 'empty') return 0
+      if (valA.kind === 'empty') return 1
+      if (valB.kind === 'empty') return -1
+
+      if (valA.kind === valB.kind) {
+        if (valA.kind === 'number') {
+          return valA.value - valB.value
+        }
+        return valA.value.localeCompare(valB.value, undefined, { numeric: true, sensitivity: 'base' })
+      }
+
+      if (valA.kind === 'number' && valB.kind === 'string') return -1
+      if (valA.kind === 'string' && valB.kind === 'number') return 1
+      return 0
+    }
+
+    return [...filtered].sort((a, b) => {
+      const result = compareValues(a[sort.key], b[sort.key])
+      return sort.dir === 'desc' ? -result : result
     })
   }, [liveChains, envFilter, sort])
 

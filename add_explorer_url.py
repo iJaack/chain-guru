@@ -1,7 +1,7 @@
 import sqlite3
 import json
 import urllib.request
-import ssl
+from utils import get_ssl_context
 
 DB_FILE = "blockchain_data.db"
 CHAINS_JSON_URL = "https://chainid.network/chains.json"
@@ -19,9 +19,7 @@ def main():
         
     # 2. Fetch Data
     print("Fetching chains.json...")
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
+    ctx = get_ssl_context()
     
     req = urllib.request.Request(CHAINS_JSON_URL, headers={'User-Agent': 'Mozilla/5.0'})
     with urllib.request.urlopen(req, timeout=15, context=ctx) as response:

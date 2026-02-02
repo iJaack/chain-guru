@@ -3,11 +3,11 @@ import sqlite3
 import time
 import json
 import urllib.request
-import ssl
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import math
 import random
+from utils import get_ssl_context
 
 # Configuration
 DB_FILE = 'blockchain_data.db'
@@ -49,15 +49,6 @@ def init_db():
             pass
     conn.commit()
     conn.close()
-
-def get_ssl_context():
-    if os.environ.get("INSECURE_SSL", "").lower() in ("1", "true", "yes"):
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-        return ctx
-    return None
-
 
 def make_rpc_request(url, payload):
     ctx = get_ssl_context()

@@ -1,9 +1,12 @@
 import sqlite3
 import urllib.request
+import urllib.parse
 import ssl
 import os
 import re
 import time
+import ipaddress
+import socket
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 DB_FILE = "blockchain_data.db"
@@ -37,6 +40,57 @@ def get_ssl_context():
         return ctx
     return None
 
+def is_private_ip(ip_obj):
+    return (
+        ip_obj.is_private
+        or ip_obj.is_loopback
+        or ip_obj.is_link_local
+        or ip_obj.is_reserved
+        or ip_obj.is_multicast
+        or ip_obj.is_unspecified
+    )
+
+def is_safe_url(url):
+    try:
+        parsed = urllib.parse.urlparse(url)
+    except Exception as e:
+        return False, f"invalid_url:{e}"
+
+    if parsed.scheme not in ("http", "https"):
+        return False, "invalid_scheme"
+
+    host = parsed.hostname
+    if not host:
+        return False, "missing_host"
+
+    host_lower = host.strip(".").lower()
+    if host_lower in ("localhost", "localhost.localdomain") or host_lower.endswith(".localhost") or host_lower.endswith(".local"):
+        return False, "localhost_blocked"
+
+    try:
+        ip_obj = ipaddress.ip_address(host_lower)
+        if is_private_ip(ip_obj):
+            return False, "private_ip_blocked"
+        return True, None
+    except ValueError:
+        pass
+
+    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    try:
+        infos = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
+    except socket.gaierror:
+        return False, "dns_error"
+
+    for info in infos:
+        addr = info[4][0]
+        try:
+            ip_obj = ipaddress.ip_address(addr)
+        except ValueError:
+            continue
+        if is_private_ip(ip_obj):
+            return False, "private_ip_blocked"
+
+    return True, None
 
 def scrape_chain(chain_item):
     chain_id, name, explorer_url = chain_item
@@ -49,6 +103,10 @@ def scrape_chain(chain_item):
     # Normalize URL
     if not explorer_url.startswith('http'):
         explorer_url = 'https://' + explorer_url
+
+    safe, reason = is_safe_url(explorer_url)
+    if not safe:
+        return chain_id, None, None, f"blocked_ssrf:{reason}"
         
     try:
         req = urllib.request.Request(

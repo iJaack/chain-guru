@@ -243,36 +243,35 @@ function App() {
               <div className="about-section">
                 <h3>🌍 The Mission</h3>
                 <p>
-                  This website tracks <strong>all chains</strong> — both alive and dead — to calculate the true global throughput (TPS) of the blockchain world across all Virtual Machines (EVM, SVM, Move, Cosmos, etc.).
+                  This website tracks all chains, alive and dead, to calculate true global throughput across all VMs.
                 </p>
               </div>
 
               <div className="about-section">
-                <h3>💰 Why calculate revenue?</h3>
+                <h3>💰 Cost Model</h3>
                 <p>
-                  Infrastructure isn't free. Someone has to pay for the computation and storage that powers decentralized networks. 
-                  This simulator helps visualize the aggregate cost of running the world's blockchain infrastructure.
+                  Infrastructure needs to pay for this. At a glance you can see the cost to run everything.
                 </p>
                 <p>
-                  Because costs vary wildly, <strong>the cost per transaction is variable</strong>. You can input your own assumptions in the dashboard to model different pricing scenarios. 
-                  We also apply a premium to non-EVM chains to account for different architectural costs.
+                  Costs are variable, and we apply a premium for non-EVM chains to reflect different infrastructure overhead.
                 </p>
               </div>
 
               <div className="about-section">
                 <h3>⚡ Real-Time Data</h3>
                 <p>
-                  Data is currently updated daily, with the goal of moving to real-time streaming updates. We track live metrics from RPCs and block explorers directly.
+                  Data is updated daily, with a goal of real-time updates.
                 </p>
               </div>
 
               <div className="about-section donation-section" style={{ marginTop: '2rem', padding: '1.5rem', background: 'rgba(10, 255, 10, 0.05)', borderRadius: '8px', border: '1px solid rgba(10, 255, 10, 0.2)' }}>
                 <h3>☕ Support the Project</h3>
-                <p>If you find this data useful, consider supporting the infrastructure costs:</p>
+                <p>If you find this data useful, consider supporting the infrastructure costs.</p>
+                <p>Donation address (EVM):</p>
                 <div className="wallet-address" style={{ fontFamily: 'monospace', background: '#000', padding: '1rem', borderRadius: '4px', margin: '1rem 0', wordBreak: 'break-all' }}>
                   0x0fe61780bd5508b3C99e420662050e5560608cA4
                 </div>
-                <p style={{ fontSize: '0.9em', opacity: 0.8 }}>(Accepted on any EVM chain)</p>
+                <p style={{ fontSize: '0.9em', opacity: 0.8 }}>(EVM)</p>
               </div>
             </div>
           </section>

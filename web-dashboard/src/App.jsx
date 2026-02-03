@@ -5,7 +5,7 @@ function App() {
   const [chains, setChains] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [currentView, setCurrentView] = useState('dashboard') // 'dashboard' or 'graveyard'
+  const [currentView, setCurrentView] = useState('dashboard') // 'dashboard', 'graveyard', 'about'
 
   // Pricing State
   const [pricing, setPricing] = useState({
@@ -222,13 +222,62 @@ function App() {
           >
             💀 Graveyard ({deadChains.length})
           </button>
+          <button
+            className={currentView === 'about' ? 'active about-btn' : 'about-btn'}
+            onClick={() => setCurrentView('about')}
+          >
+            ℹ️ About
+          </button>
         </nav>
         <div className="status">
           <span className="dot"></span> Connected to Node
         </div>
       </header>
 
-      {currentView === 'graveyard' ? (
+      {currentView === 'about' ? (
+        <main className="about-view">
+          <section className="about-content" style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <div className="card about-card">
+              <h2>About Chain Guru</h2>
+              
+              <div className="about-section">
+                <h3>🌍 The Mission</h3>
+                <p>
+                  This website tracks <strong>all chains</strong> — both alive and dead — to calculate the true global throughput (TPS) of the blockchain world across all Virtual Machines (EVM, SVM, Move, Cosmos, etc.).
+                </p>
+              </div>
+
+              <div className="about-section">
+                <h3>💰 Why calculate revenue?</h3>
+                <p>
+                  Infrastructure isn't free. Someone has to pay for the computation and storage that powers decentralized networks. 
+                  This simulator helps visualize the aggregate cost of running the world's blockchain infrastructure.
+                </p>
+                <p>
+                  Because costs vary wildly, <strong>the cost per transaction is variable</strong>. You can input your own assumptions in the dashboard to model different pricing scenarios. 
+                  We also apply a premium to non-EVM chains to account for different architectural costs.
+                </p>
+              </div>
+
+              <div className="about-section">
+                <h3>⚡ Real-Time Data</h3>
+                <p>
+                  Data is currently updated daily, with the goal of moving to real-time streaming updates. We track live metrics from RPCs and block explorers directly.
+                </p>
+              </div>
+
+              <div className="about-section donation-section" style={{ marginTop: '2rem', padding: '1.5rem', background: 'rgba(10, 255, 10, 0.05)', borderRadius: '8px', border: '1px solid rgba(10, 255, 10, 0.2)' }}>
+                <h3>☕ Support the Project</h3>
+                <p>If you find this data useful, consider supporting the infrastructure costs:</p>
+                <div className="wallet-address" style={{ fontFamily: 'monospace', background: '#000', padding: '1rem', borderRadius: '4px', margin: '1rem 0', wordBreak: 'break-all' }}>
+                  0x0fe61780bd5508b3C99e420662050e5560608cA4
+                </div>
+                <p style={{ fontSize: '0.9em', opacity: 0.8 }}>(Accepted on any EVM chain)</p>
+              </div>
+            </div>
+          </section>
+        </main>
+      ) : currentView === 'graveyard' ? (
         <main className="graveyard-view">
           <section className="graveyard-header">
             <div className="card graveyard-intro">
@@ -272,6 +321,14 @@ function App() {
         </main>
       ) : (
         <main>
+          {/* Hero Section */}
+          <section className="hero-section" style={{ textAlign: 'center', marginBottom: '2rem', padding: '2rem', background: 'linear-gradient(180deg, rgba(10, 11, 30, 0) 0%, rgba(10, 255, 10, 0.05) 100%)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: '#fff' }}>Global Blockchain Throughput & Cost Simulator</h2>
+            <p style={{ color: '#94a3b8', maxWidth: '600px', margin: '0 auto', lineHeight: '1.6' }}>
+              Tracking the pulse of the entire blockchain ecosystem. Real-time TPS and infrastructure cost simulation across all chains and VMs (EVM, SVM, Move, Cosmos).
+            </p>
+          </section>
+
           {/* Revenue Cards */}
           <section className="kpi-grid">
             <div className="card glow-evm">

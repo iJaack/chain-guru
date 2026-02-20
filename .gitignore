@@ -1,5 +1,9 @@
-.vercel
-.env*.local
-/data/
-*.db
-active_blockchains.csv
+node_modules/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+venv/
+*.egg-info/
+dist/
+.vercel/

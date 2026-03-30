@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts'
+import { Analytics } from '@vercel/analytics/react'
 
 function App() {
   const [chains, setChains] = useState([])
@@ -500,6 +501,7 @@ function App() {
           </section>
         </main>
       )}
+      <Analytics />
     </div>
   )
 }
